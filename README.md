@@ -1,6 +1,5 @@
 Task Management API
-A RESTful API for managing users, projects, and tasks using Flask and PostgreSQL, built for Briskcovey Technologies Pvt. Ltd.
-Features
+A RESTful API for managing users, projects, and tasks using Flask and PostgreSQL
 
 Users: Create, list (paginated), retrieve, and delete users (with constraints for active tasks).
 Projects: Create, list (paginated), retrieve, and list project tasks (paginated).
