@@ -7,6 +7,7 @@ class Project(db.Model):
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    tasks = db.relationship('Task', backref='project', lazy=True)
 
     def to_dict(self):
         return {

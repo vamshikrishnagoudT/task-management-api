@@ -4,6 +4,12 @@ from config import Config
 
 db = SQLAlchemy()
 
+task_dependencies = db.Table(
+    'task_dependencies',
+    db.Column('task_id', db.Integer, db.ForeignKey('tasks.id'), primary_key=True),
+    db.Column('depends_on_id', db.Integer, db.ForeignKey('tasks.id'), primary_key=True)
+)
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
