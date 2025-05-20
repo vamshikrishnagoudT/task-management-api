@@ -83,5 +83,4 @@ Submission
 Repository: https://github.com/yourusername/task-management-api
 Postman Files: TaskManagementAPI.postman_collection.json, TaskManagementAPI_Dev.postman_environment.json
 Testing: All endpoints tested via Postman, unit tests pass.
-Contact: For issues, reach out to hr@briskcovey.com.
 
