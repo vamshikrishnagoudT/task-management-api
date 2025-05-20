@@ -1,74 +1,87 @@
- A RESTful API for managing users, projects, and tasks using Flask and PostgreSQL.
+Task Management API
+A RESTful API for managing users, projects, and tasks using Flask and PostgreSQL, built for Briskcovey Technologies Pvt. Ltd.
+Features
 
- ## Setup Instructions
+Users: Create, list (paginated), retrieve, and delete users (with constraints for active tasks).
+Projects: Create, list (paginated), retrieve, and list project tasks (paginated).
+Tasks: Create (with dependency validation), retrieve, update status (with dependency checks), and list by user/status (paginated).
+Authentication: JWT-based authentication for protected endpoints.
+Constraints: Prevents circular task dependencies, ensures dependencies are completed before task completion, and blocks user deletion if assigned to pending/in-progress tasks.
+Testing: Unit tests for critical logic and comprehensive Postman tests.
 
- 1. **Clone the Repository**:
-    ```bash
-    git clone https://github.com/yourusername/task-management-api.git
-    cd task-management-api
-    ```
+Setup Instructions
 
- 2. **Set Up Virtual Environment**:
-    ```bash
-    python3 -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
-    ```
+Clone the Repository:
+git clone https://github.com/yourusername/task-management-api.git
+cd task-management-api
 
- 3. **Set Up PostgreSQL**:
-    ```bash
-    sudo -u postgres psql
-    ```
-    ```sql
-    CREATE DATABASE task_management;
-    CREATE USER task_user WITH PASSWORD 'password123';
-    ALTER ROLE task_user SET client_encoding TO 'utf8';
-    ALTER ROLE task_user SET default_transaction_isolation TO 'read committed';
-    ALTER ROLE task_user SET timezone TO 'UTC';
-    GRANT ALL PRIVILEGES ON DATABASE task_management TO task_user;
-    \q
-    ```
 
- 4. **Create .env File**:
-    ```bash
-    touch .env
-    ```
-    Add:
-    ```
-    DATABASE_URL=postgresql://task_user:password123@localhost:5432/task_management
-    SECRET_KEY=your-secret-key
-    ```
+Set Up Virtual Environment:
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 
- 5. **Seed the Database**:
-    ```bash
-    python scripts/seed.py
-    ```
 
- 6. **Run the Application**:
-    ```bash
-    python run.py
-    ```
+Set Up PostgreSQL:
+sudo -u postgres psql
 
- 7. **Test with Postman**:
-    - Import `TaskManagementAPI.postman_collection.json` into Postman.
-    - Test endpoints:
-      - **Users**:
-        - `POST /api/users`: Create a user (e.g., `{"username": "john", "email": "john@example.com"}`).
-        - `GET /api/users`: List all users.
-        - `GET /api/users/<id>`: Get user by ID.
-      - **Projects**:
-        - `POST /api/projects`: Create a project (e.g., `{"name": "New Project", "description": "A test project"}`).
-        - `GET /api/projects`: List all projects.
-        - `GET /api/projects/<id>`: Get project by ID.
-        - `GET /api/projects/<id>/tasks`: List tasks under a project.
-      - **Tasks**:
-        - `POST /api/tasks`: Create a task (e.g., `{"title": "Deploy App", "project_id": 1, "user_id": 1, "dependencies": [1]}`).
-        - `GET /api/tasks/<id>`: Get task by ID.
-        - `PUT /api/tasks/<id>/status`: Update task status (e.g., `{"status": "completed"}`).
-        - `GET /api/tasks/user/<user_id>`: List tasks for a user.
-        - `GET /api/tasks/status/<status>`: List tasks by status (e.g., `pending`).
+CREATE DATABASE task_management;
+CREATE USER task_user WITH PASSWORD 'password123';
+ALTER ROLE task_user SET client_encoding TO 'utf8';
+ALTER ROLE task_user SET default_transaction_isolation TO 'read committed';
+ALTER ROLE task_user SET timezone TO 'UTC';
+GRANT ALL PRIVILEGES ON DATABASE task_management TO task_user;
+\q
 
- ## Sprint Status
- - **Sprint 1**: User endpoints implemented with input validation and error handling.
- - **Sprint 2**: Project endpoints implemented, database seed script added, Postman tests updated.
- - **Sprint 3**: Task endpoints implemented with dependency logic (circular dependency prevention, status update constraints).
+
+Create .env File:
+touch .env
+
+Add:
+DATABASE_URL=postgresql://task_user:password123@localhost:5432/task_management
+SECRET_KEY=your-secret-key
+
+
+Seed the Database:
+python -m scripts.seed
+
+
+Run the Application:
+python run.py
+
+
+Run Unit Tests:
+pytest tests/test_task.py
+
+
+Test with Postman:
+
+Import TaskManagementAPI.postman_collection.json and TaskManagementAPI_Dev.postman_environment.json into Postman.
+Set environment to TaskManagementAPI_Dev.
+Run Login User (POST /api/auth/login) to get a JWT token.
+Test endpoints with Authorization: Bearer {{token}} for protected routes.
+Use collection runner to automate testing.
+Endpoints:
+Auth: POST /api/auth/login
+Users: POST /api/users, GET /api/users?page=1&per_page=10, GET /api/users/<id>, DELETE /api/users/<id>
+Projects: POST /api/projects, GET /api/projects?page=1&per_page=10, GET /api/projects/<id>, GET /api/projects/<id>/tasks?page=1&per_page=10
+Tasks: POST /api/tasks, GET /api/tasks/<id>, PUT /api/tasks/<id>/status, GET /api/tasks/user/<user_id>?page=1&per_page=10, GET /api/tasks/status/<status>?page=1&per_page=10
+
+
+
+
+
+Sprint Status
+
+User endpoints with input validation.
+Project endpoints and seed script.
+Task endpoints with dependency logic.
+JWT authentication, pagination, unit tests, user deletion constraint.
+
+Submission
+
+Repository: https://github.com/yourusername/task-management-api
+Postman Files: TaskManagementAPI.postman_collection.json, TaskManagementAPI_Dev.postman_environment.json
+Testing: All endpoints tested via Postman, unit tests pass.
+Contact: For issues, reach out to hr@briskcovey.com.
+
