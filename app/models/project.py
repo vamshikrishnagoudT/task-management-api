@@ -1,12 +1,13 @@
 from app import db
 from datetime import datetime
+import datetime as dt
 
 class Project(db.Model):
     __tablename__ = 'projects'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(dt.UTC))
     tasks = db.relationship('Task', backref='project', lazy=True)
 
     def to_dict(self):

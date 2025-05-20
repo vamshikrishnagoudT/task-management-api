@@ -3,11 +3,13 @@ from app import db
 from app.models.task import Task
 from app.models.project import Project
 from app.models.user import User
+from app.utils.auth import token_required
 
 task_bp = Blueprint('task', __name__)
 
 @task_bp.route('/', methods=['POST'])
-def create_task():
+@token_required
+def create_task(current_user):
     data = request.get_json()
     if not data or not data.get('title') or not data.get('project_id'):
         return jsonify({'error': 'Title and project_id are required'}), 400
@@ -28,11 +30,9 @@ def create_task():
         user_id=data.get('user_id')
     )
 
-    # Simulate new task ID (max ID + 1)
     max_id = db.session.query(db.func.max(Task.id)).scalar() or 0
     new_task_id = max_id + 1
 
-    # Handle dependencies
     dependency_ids = data.get('dependencies', [])
     for dep_id in dependency_ids:
         dep = Task.query.get(dep_id)
@@ -47,12 +47,14 @@ def create_task():
     return jsonify(task.to_dict()), 201
 
 @task_bp.route('/<int:task_id>', methods=['GET'])
-def get_task(task_id):
+@token_required
+def get_task(current_user, task_id):
     task = Task.query.get_or_404(task_id)
     return jsonify(task.to_dict()), 200
 
 @task_bp.route('/<int:task_id>/status', methods=['PUT'])
-def update_task_status(task_id):
+@token_required
+def update_task_status(current_user, task_id):
     task = Task.query.get_or_404(task_id)
     data = request.get_json()
     if not data or not data.get('status'):
@@ -70,14 +72,30 @@ def update_task_status(task_id):
     return jsonify(task.to_dict()), 200
 
 @task_bp.route('/user/<int:user_id>', methods=['GET'])
-def list_user_tasks(user_id):
+@token_required
+def list_user_tasks(current_user, user_id):
     user = User.query.get_or_404(user_id)
-    tasks = Task.query.filter_by(user_id=user_id).all()
-    return jsonify([task.to_dict() for task in tasks]), 200
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    tasks = Task.query.filter_by(user_id=user_id).paginate(page=page, per_page=per_page, error_out=False)
+    return jsonify({
+        'tasks': [task.to_dict() for task in tasks.items],
+        'total': tasks.total,
+        'pages': tasks.pages,
+        'page': page
+    }), 200
 
 @task_bp.route('/status/<status>', methods=['GET'])
-def list_tasks_by_status(status):
+@token_required
+def list_tasks_by_status(current_user, status):
     if status not in ['pending', 'in_progress', 'completed']:
         return jsonify({'error': 'Invalid status'}), 400
-    tasks = Task.query.filter_by(status=status).all()
-    return jsonify([task.to_dict() for task in tasks]), 200
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    tasks = Task.query.filter_by(status=status).paginate(page=page, per_page=per_page, error_out=False)
+    return jsonify({
+        'tasks': [task.to_dict() for task in tasks.items],
+        'total': tasks.total,
+        'pages': tasks.pages,
+        'page': page
+    }), 200

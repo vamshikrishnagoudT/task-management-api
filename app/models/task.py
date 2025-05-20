@@ -38,10 +38,10 @@ class Task(db.Model):
             path = set()
         if new_task_id and depends_on_id == new_task_id:
             return True
-        if depends_on_id in visited:
-            return False
         if depends_on_id in path:
             return True
+        if depends_on_id in visited:
+            return False
         path.add(depends_on_id)
         task = Task.query.get(depends_on_id)
         if task:
