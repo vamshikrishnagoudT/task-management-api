@@ -1,5 +1,4 @@
 from app import db
-from datetime import datetime
 
 class Task(db.Model):
     __tablename__ = 'tasks'
@@ -9,7 +8,7 @@ class Task(db.Model):
     status = db.Column(db.String(20), nullable=False, default='pending')
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=db.func.now())
     dependencies = db.relationship(
         'Task',
         secondary='task_dependencies',
@@ -43,7 +42,7 @@ class Task(db.Model):
         if depends_on_id in visited:
             return False
         path.add(depends_on_id)
-        task = Task.query.get(depends_on_id)
+        task = db.session.get(Task, depends_on_id)
         if task:
             for dep in task.dependencies:
                 if self.has_circular_dependency(dep.id, new_task_id, visited, path):

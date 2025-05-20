@@ -14,11 +14,11 @@ def create_task(current_user):
     if not data or not data.get('title') or not data.get('project_id'):
         return jsonify({'error': 'Title and project_id are required'}), 400
 
-    project = Project.query.get(data['project_id'])
+    project = db.session.get(Project, data['project_id'])
     if not project:
         return jsonify({'error': 'Project not found'}), 404
 
-    user = User.query.get(data.get('user_id')) if data.get('user_id') else None
+    user = db.session.get(User, data.get('user_id')) if data.get('user_id') else None
     if data.get('user_id') and not user:
         return jsonify({'error': 'User not found'}), 404
 
@@ -35,7 +35,7 @@ def create_task(current_user):
 
     dependency_ids = data.get('dependencies', [])
     for dep_id in dependency_ids:
-        dep = Task.query.get(dep_id)
+        dep = db.session.get(Task, dep_id)
         if not dep:
             return jsonify({'error': f'Dependency task {dep_id} not found'}), 404
         if task.has_circular_dependency(dep_id, new_task_id):
@@ -49,13 +49,17 @@ def create_task(current_user):
 @task_bp.route('/<int:task_id>', methods=['GET'])
 @token_required
 def get_task(current_user, task_id):
-    task = Task.query.get_or_404(task_id)
+    task = db.session.get(Task, task_id)
+    if not task:
+        return jsonify({'error': 'Task not found'}), 404
     return jsonify(task.to_dict()), 200
 
 @task_bp.route('/<int:task_id>/status', methods=['PUT'])
 @token_required
 def update_task_status(current_user, task_id):
-    task = Task.query.get_or_404(task_id)
+    task = db.session.get(Task, task_id)
+    if not task:
+        return jsonify({'error': 'Task not found'}), 404
     data = request.get_json()
     if not data or not data.get('status'):
         return jsonify({'error': 'Status is required'}), 400
@@ -74,7 +78,9 @@ def update_task_status(current_user, task_id):
 @task_bp.route('/user/<int:user_id>', methods=['GET'])
 @token_required
 def list_user_tasks(current_user, user_id):
-    user = User.query.get_or_404(user_id)
+    user = db.session.get(User, user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 10, type=int)
     tasks = Task.query.filter_by(user_id=user_id).paginate(page=page, per_page=per_page, error_out=False)

@@ -36,13 +36,17 @@ def list_projects(current_user):
 @project_bp.route('/<int:project_id>', methods=['GET'])
 @token_required
 def get_project(current_user, project_id):
-    project = Project.query.get_or_404(project_id)
+    project = db.session.get(Project, project_id)
+    if not project:
+        return jsonify({'error': 'Project not found'}), 404
     return jsonify(project.to_dict()), 200
 
 @project_bp.route('/<int:project_id>/tasks', methods=['GET'])
 @token_required
 def list_project_tasks(current_user, project_id):
-    project = Project.query.get_or_404(project_id)
+    project = db.session.get(Project, project_id)
+    if not project:
+        return jsonify({'error': 'Project not found'}), 404
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 10, type=int)
     tasks = project.tasks.paginate(page=page, per_page=per_page, error_out=False)

@@ -41,13 +41,17 @@ def list_users(current_user):
 @user_bp.route('/<int:user_id>', methods=['GET'])
 @token_required
 def get_user(current_user, user_id):
-    user = User.query.get_or_404(user_id)
+    user = db.session.get(User, user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
     return jsonify(user.to_dict()), 200
 
 @user_bp.route('/<int:user_id>', methods=['DELETE'])
 @token_required
 def delete_user(current_user, user_id):
-    user = User.query.get_or_404(user_id)
+    user = db.session.get(User, user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
     active_tasks = Task.query.filter_by(user_id=user_id).filter(Task.status.in_(['pending', 'in_progress'])).count()
     if active_tasks > 0:
         return jsonify({'error': 'Cannot delete user with pending or in-progress tasks'}), 400

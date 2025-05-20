@@ -3,6 +3,7 @@ from flask import request, jsonify
 import jwt
 from config import Config
 from app.models.user import User
+from app import db
 
 def token_required(f):
     @wraps(f)
@@ -14,7 +15,7 @@ def token_required(f):
             return jsonify({'error': 'Token is missing'}), 401
         try:
             data = jwt.decode(token, Config.SECRET_KEY, algorithms=['HS256'])
-            current_user = User.query.get(data['user_id'])
+            current_user = db.session.get(User, data['user_id'])
             if not current_user:
                 return jsonify({'error': 'User not found'}), 401
         except jwt.ExpiredSignatureError:
