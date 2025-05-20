@@ -28,13 +28,17 @@ def create_task():
         user_id=data.get('user_id')
     )
 
+    # Simulate new task ID (max ID + 1)
+    max_id = db.session.query(db.func.max(Task.id)).scalar() or 0
+    new_task_id = max_id + 1
+
     # Handle dependencies
     dependency_ids = data.get('dependencies', [])
     for dep_id in dependency_ids:
         dep = Task.query.get(dep_id)
         if not dep:
             return jsonify({'error': f'Dependency task {dep_id} not found'}), 404
-        if task.has_circular_dependency(dep_id):
+        if task.has_circular_dependency(dep_id, new_task_id):
             return jsonify({'error': f'Circular dependency detected with task {dep_id}'}), 400
         task.dependencies.append(dep)
 

@@ -27,15 +27,17 @@ class Task(db.Model):
             'status': self.status,
             'project_id': self.project_id,
             'user_id': self.user_id,
-            'created_at': self.created_at.isoformat(),
+            'created_at': self.created_at.isoformat() if self.created_at else None,
             'dependencies': [dep.id for dep in self.dependencies]
         }
 
-    def has_circular_dependency(self, depends_on_id, visited=None, path=None):
+    def has_circular_dependency(self, depends_on_id, new_task_id=None, visited=None, path=None):
         if visited is None:
             visited = set()
         if path is None:
             path = set()
+        if new_task_id and depends_on_id == new_task_id:
+            return True
         if depends_on_id in visited:
             return False
         if depends_on_id in path:
@@ -44,7 +46,7 @@ class Task(db.Model):
         task = Task.query.get(depends_on_id)
         if task:
             for dep in task.dependencies:
-                if self.has_circular_dependency(dep.id, visited, path):
+                if self.has_circular_dependency(dep.id, new_task_id, visited, path):
                     return True
         path.remove(depends_on_id)
         visited.add(depends_on_id)
