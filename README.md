@@ -11,7 +11,7 @@ Testing: Unit tests for critical logic and comprehensive Postman tests.
 Setup Instructions
 
 Clone the Repository:
-git clone https://github.com/yourusername/task-management-api.git
+git clone  https://github.com/vamshikrishnagoudT/task-management-api
 cd task-management-api
 
 
@@ -77,9 +77,4 @@ Project endpoints and seed script.
 Task endpoints with dependency logic.
 JWT authentication, pagination, unit tests, user deletion constraint.
 
-Submission
-
-Repository: https://github.com/yourusername/task-management-api
-Postman Files: TaskManagementAPI.postman_collection.json, TaskManagementAPI_Dev.postman_environment.json
-Testing: All endpoints tested via Postman, unit tests pass.
 
